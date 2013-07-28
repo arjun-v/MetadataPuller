@@ -23,7 +23,7 @@ def youtube_search(options):
 
   search_response = youtube.search().list(
     q=options.q,
-    part="id,snippet",
+    part="id",
     order="viewCount",
     type="video",
     maxResults=options.maxResults
@@ -33,7 +33,6 @@ def youtube_search(options):
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
 	videoId = search_result["id"]["videoId"]
-	print search_result["snippet"]["title"]
 	stats =  fetch_statistics(YOUTUBE_API_URL % videoId)["items"][0]["statistics"]
 	print stats["viewCount"],stats["likeCount"],stats["dislikeCount"]
 
