@@ -2,6 +2,7 @@
 
 from apiclient.discovery import build
 from optparse import OptionParser
+from neo4j_util import Neo4jUtil
 
 import sys
 import requests
@@ -22,19 +23,38 @@ def youtube_search(options):
     developerKey=DEVELOPER_KEY)
 
   search_response = youtube.search().list(
-    q=options.q,
+    q=(options.q+ " videos"),
     part="id",
     order="viewCount",
     type="video",
     maxResults=options.maxResults
   ).execute()
 
-
+  items = search_response.get("items", [])
+  viewcount_total = 0
+  count = 0
+  like_count = 0
+  dislike_count = 0
+  params = {}
+  
   for search_result in search_response.get("items", []):
     if search_result["id"]["kind"] == "youtube#video":
+	count+=1
 	videoId = search_result["id"]["videoId"]
 	stats =  fetch_statistics(YOUTUBE_API_URL % videoId)["items"][0]["statistics"]
-	print stats["viewCount"],stats["likeCount"],stats["dislikeCount"]
+	like_count+=int(stats["likeCount"])
+	dislike_count+=int(stats["dislikeCount"])
+	viewcount_total+=int(stats["viewCount"])
+  
+  params["y_popularity_index"] = len(str(viewcount_total))
+  params["y_rating"] = (float(like_count - dislike_count)/like_count)*10
+  params["y_normalized_rating"] = float(like_count - dislike_count)/viewcount_total
+  params["y_like_count"] = like_count
+  params["y_dislike_count"] = dislike_count
+  params["y_view_count"] = viewcount_total
+  params["name"] = options.q
+  print params
+  Neo4jUtil.create_artist_node(params)
 
 if __name__ == "__main__":
   parser = OptionParser()
