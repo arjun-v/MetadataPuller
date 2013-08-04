@@ -13,7 +13,6 @@ class Neo4jUtil(object):
 		params = {Neo4jUtil.artist_key : artist}
 		params.update(YoutubeUtil.fetch_youtube_stats(artist))
 		params.update(FacebookUtil.fetch_fb_pages(artist))
-		print params	
 		node = artists.create_if_none(Neo4jUtil.artist_key, params[Neo4jUtil.artist_key], params)
 		if node is None:
 			node, = artists.get(Neo4jUtil.artist_key, params[Neo4jUtil.artist_key])
