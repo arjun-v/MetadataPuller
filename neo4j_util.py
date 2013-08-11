@@ -15,6 +15,7 @@ class Neo4jUtil(object):
 		params.update(YoutubeUtil.fetch_youtube_stats(artist))
 		params.update(FacebookUtil.fetch_fb_pages(artist))
 		params.update(TwitterUtil.get_twitter_user(artist))
+		params.update(SpotifyUtil.get_spotify_stat(artist))
 		node = artists.create_if_none(Neo4jUtil.artist_key, params[Neo4jUtil.artist_key], params)
 		if node is None:
 			node, = artists.get(Neo4jUtil.artist_key, params[Neo4jUtil.artist_key])
